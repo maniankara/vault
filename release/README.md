@@ -1,15 +1,16 @@
 # release/
 
 This directory contains a build system for producing multiple different packages
-from the same set of source code. The build system allows the definition of
-*packages* which are complete descriptions of the build environment and build
-command used to produce each package. This set of packages is used to generate
-CI configuration as well as a set of commands you can run locally to produce
-each package.
+from the same source code (i.e. a single git commit).
 
-Packages include a set of *layers* which are individually cacheable stages
-of the build, expressed as Dockerfile templates and source definitions,
-and cached as Docker images.
+The build system allows the definition of *packages* which are near complete
+descriptions of the build environment and build command used to produce each package.
+This set of packages is used to generate CI configuration as well as a set of commands
+you can run locally to produce each package.
+
+Packages include a set of *layers* which are individually cacheable stages of the
+build, expressed as Dockerfile templates and source definitions, and cached as Docker
+images.
 
 ## Why?
 
@@ -19,11 +20,11 @@ For some of our software there are many tens of variations that must be
 built for a single commit. Managing these by hand is too onerous a task
 and one that may easily result in error. The usual solution is to write
 iterative programs that directly output the various binaries, however this
-itself is difficult to understand, and difficult to observe clearly.
+itself can be difficult to understand, and difficult to observe clearly.
 
 By separating the workflows of _defining_ packages and then _building_ them
 we end up with an easy to understand intermediate representation of the
-definitions of each package. Not only is it easy to understand, but also to
+each package. Not only is it easy to understand, but also to
 consume for other purposes, such as generating CI pipelines, or
 programattically editing to further automation efforts.
 
@@ -47,8 +48,9 @@ matches your local GOOS and GOARCH and builds that one.
 ## Implementation
 
 There are two separate workflows: defining packages (implemented in packages.mk)
-and building packages (build.mk). For conveninience the main Makefile allows
-calling into both of these without having to decide which.
+and building packages (build.mk). For conveninience the main Makefile exposes targets
+that invoke those files on your behalf, which you should always use unless debugging
+the system.
 
 ### packages.mk
 
@@ -67,3 +69,7 @@ a set of dockerfiles defined in layers.lock, and from them produces package
 files for distribution. By reusing, or building, Docker containers in the
 relevant order for that package, and then using that generated builder
 image to compile the final packagees.
+
+### layer.mk
+
+layer.mk contains all the code for _building_ the layers defined in `layers.lock`.
