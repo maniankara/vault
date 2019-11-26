@@ -40,4 +40,3 @@ ENV DIR=$GOPATH/src/$REPO
 RUN mkdir -p $DIR
 
 WORKDIR $DIR
-
