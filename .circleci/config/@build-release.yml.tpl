@@ -23,34 +23,20 @@ jobs:
       - setup_remote_docker
       - checkout
       - write-cache-keys
+      {{- range $layers}}{{if eq .type "static"}}
       - restore_cache:
           keys:
-          {{- $count := 0 -}}
-          {{- $index := 0}}
-            - {{$cacheVersion}}-{{range $layers}}{{$count = (math.Add $count 1) -}}
-              {{.type}}-{{"{{checksum \".buildcache/" }}{{.type}}_{{.checksum}}-cache-key{{"\"}}"}}
-              {{- end}}{{$index = $count -}}
-              {{- range $layers -}}
-              {{- $count = 0 -}}
-              {{- $index = (math.Sub $index 1) -}}
-              {{- if ge $index 1}}
-            - {{$cacheVersion -}}
-                {{- range $layers}}{{$count = (math.Add $count 1) -}}
-                  {{- if le $count $index -}}
-                    -{{.type}}-{{"{{checksum \".buildcache/" }}{{.type}}_{{.checksum}}-cache-key{{"\"}}"}}
-                  {{- end -}}
-                {{- end -}}
-              {{- end -}}
+            {{- range .circlecicacheprefixes}}
+            - {{$cacheVersion}}-{{.}}
             {{- end}}
-      - load-builder-cache
-      - run: make -C release build-all-layers
-      - save-builder-cache
+      - run: make -f release/build.mk {{.name}}-restore
+      - run: make -f release/build.mk {{.name}}-image
+      - run: make -f release/build.mk {{.name}}-save
       - save_cache:
-          key: {{$cacheVersion}}-{{range $layers}}{{$count = (math.Add $count 1) -}}
-               {{- .type}}-{{"{{checksum \".buildcache/" }}{{.type}}_{{.checksum}}-cache-key{{"\"}}"}}
-               {{- end }}
+          key: {{$cacheVersion}}-{{index .circlecicacheprefixes 0}}
           paths:
             - .buildcache/docker-builder-cache.tar.gz
+      {{- end}}{{end}}
 
   bundle-releases:
     executor: releaser
@@ -79,7 +65,7 @@ jobs:
       - restore_cache:
           keys:
           {{- range .meta.CIRCLECI_CACHE_KEY_PREFIXES}}
-          - {{.}}
+          - {{$cacheVersion}}-{{.}}
           {{- end}}
       - load-builder-cache
       - run: make -C release package

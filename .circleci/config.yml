@@ -10,6 +10,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_darwin_386
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -22,11 +23,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -39,10 +39,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -54,7 +54,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-335e0f276e5d7b0fa409289e40ad1a03060812ab3abf7323f6d6f29be1ba4943`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-647c5f61299d6ded5eecba75ce0afaacfc90d32f"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   bundle-releases:
@@ -70,37 +70,37 @@ jobs:
         command: make -C release write-package-cache-keys
         name: Write package cache keys
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-335e0f276e5d7b0fa409289e40ad1a03060812ab3abf7323f6d6f29be1ba4943`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-647c5f61299d6ded5eecba75ce0afaacfc90d32f"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-f7c19b8676cfe8c8d2a6a3720a2afd4a1f161ac157f5aef9efa4734687703563`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-754b4e6d0951cfb18ce402d95d9863a7051bb79d"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-2735158722a385c7f09b437764d37199bdce6dccd217777654e3b2daf73c47c3`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-0b8ee19233c84dee317a55fae82daef17e2fe005"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-cdf7996c10a0b6610d3d956eaf0b61cb489d0e30b6616a8ac08a0ca55b57adb1`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-0576b8f5ae7675d1cc5f62e1a45931ededc4f878"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-678cdba8ff2c887648d206e15cfeff0e85fd53e182a66bcaae8e4d478d7d2741`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-5899561c25e064b07ecd8203c8d481e7d234bd2c"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-bf24e713abe67992eed30ac67ec02a9bc98dd7783e89911d57d6fc7200724549`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-91d5bff5b946d53a8f5bb666e09a20a3e619d2ab"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-8944cad9ef31bfd93b94046dcce050a44c186179fcdfd0c3246d2d49e7a10822`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-df7ef0ed64df45593e4a8ba92e9fef33b0b4b778"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-7e8569b768c5939cdcec061155ebca58156df8ea10547418206b22c59838de05`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-f38d37ee6eb98b99f4532332747b8cc2f3ccf133"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-87838a751d263be37f256dcfb8655911fa890f956043a696fc7029ed51146fe2`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-94c7b2112fc8d8d5ec2cf152d542e29c02ba1ab9"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-4b8cbd864a636115604e6df60d7efdca4ca10db005effaedc8911a304a8d65dc`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-18540eb5e3fb4966b7be65ff9d66a255df72739e"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-5d20aacd8ace428e15b987c1ba9cce1d671022ff8c8db038e3b04407a0a4738c`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-a6623f1bc320f43797857d932b553c2060fbfe0c"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-e42068b234df3f05f7f7a1dacb2d2a4146c7076e7932a1aac6541f19682419b5`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-fbd6af5ba2be20f99e97a355605fa97051fa16f3"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-e063cd2ba412b7e2dbdccf6eba3edf212acc613190543cccde61a4e38049747e`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-4c43df099bd5222d20541e981f505ef0236a2552"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-a8d27fc8b004a3bfa032e6dbc7d8e2b6e232c21e9a9a9b0117fb5e7cc378cc5d`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-df94b3d0dfc19550e950ce311ecca64d26e13a9d"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-a0dfb0d5aa3971c1b1da715c73227b250ed91c2219b9fc27aa38373272c8a1d8`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-5f1de37f7f9b573eb3485c242383a62d59e4836d"}}
     - restore_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-d11df4db8fb8af6fd19f58ed53b7bd6d2125f6f9dbd02672875e8828a8c538df`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-63b0548b6ab8cea9f140a55aa8552e286989d22c"}}
     - run:
         command: ls -lahR dist/
   package_linux_arm64:
@@ -109,6 +109,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_linux_arm64
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -121,11 +122,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -138,10 +138,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -153,7 +153,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-87838a751d263be37f256dcfb8655911fa890f956043a696fc7029ed51146fe2`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-94c7b2112fc8d8d5ec2cf152d542e29c02ba1ab9"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   package_windows_386:
@@ -162,6 +162,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_windows_386
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -174,11 +175,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -191,10 +191,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -206,7 +206,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-a0dfb0d5aa3971c1b1da715c73227b250ed91c2219b9fc27aa38373272c8a1d8`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-5f1de37f7f9b573eb3485c242383a62d59e4836d"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   install-ui-dependencies:
@@ -234,6 +234,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_netbsd_amd64
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -246,11 +247,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -263,10 +263,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -278,7 +278,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-5d20aacd8ace428e15b987c1ba9cce1d671022ff8c8db038e3b04407a0a4738c`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-a6623f1bc320f43797857d932b553c2060fbfe0c"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   package_linux_arm:
@@ -287,6 +287,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_linux_arm
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -299,11 +300,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -316,10 +316,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -331,7 +331,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-7e8569b768c5939cdcec061155ebca58156df8ea10547418206b22c59838de05`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-f38d37ee6eb98b99f4532332747b8cc2f3ccf133"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   package_solaris_amd64:
@@ -340,6 +340,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_solaris_amd64
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -352,11 +353,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -369,10 +369,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -384,7 +384,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-a8d27fc8b004a3bfa032e6dbc7d8e2b6e232c21e9a9a9b0117fb5e7cc378cc5d`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-df94b3d0dfc19550e950ce311ecca64d26e13a9d"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   test-ui:
@@ -449,6 +449,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_freebsd_arm
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -461,11 +462,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -478,10 +478,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -493,7 +493,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-678cdba8ff2c887648d206e15cfeff0e85fd53e182a66bcaae8e4d478d7d2741`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-5899561c25e064b07ecd8203c8d481e7d234bd2c"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   build-go-dev:
@@ -667,6 +667,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_linux_amd64
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -679,11 +680,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -696,10 +696,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -711,7 +711,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-8944cad9ef31bfd93b94046dcce050a44c186179fcdfd0c3246d2d49e7a10822`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-df7ef0ed64df45593e4a8ba92e9fef33b0b4b778"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   package_windows_amd64:
@@ -720,6 +720,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_windows_amd64
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -732,11 +733,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -749,10 +749,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -764,7 +764,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-d11df4db8fb8af6fd19f58ed53b7bd6d2125f6f9dbd02672875e8828a8c538df`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-63b0548b6ab8cea9f140a55aa8552e286989d22c"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   package_linux_386:
@@ -773,6 +773,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_linux_386
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -785,11 +786,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -802,10 +802,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -817,7 +817,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-bf24e713abe67992eed30ac67ec02a9bc98dd7783e89911d57d6fc7200724549`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-91d5bff5b946d53a8f5bb666e09a20a3e619d2ab"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   package_freebsd_amd64:
@@ -826,6 +826,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_freebsd_amd64
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -838,11 +839,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -855,10 +855,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -870,7 +870,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-cdf7996c10a0b6610d3d956eaf0b61cb489d0e30b6616a8ac08a0ca55b57adb1`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-0576b8f5ae7675d1cc5f62e1a45931ededc4f878"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   package_openbsd_386:
@@ -879,6 +879,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_openbsd_386
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -891,11 +892,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -908,10 +908,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -923,7 +923,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-e42068b234df3f05f7f7a1dacb2d2a4146c7076e7932a1aac6541f19682419b5`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-fbd6af5ba2be20f99e97a355605fa97051fa16f3"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   package_openbsd_amd64:
@@ -932,6 +932,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_openbsd_amd64
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -944,11 +945,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -961,10 +961,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -976,7 +976,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-e063cd2ba412b7e2dbdccf6eba3edf212acc613190543cccde61a4e38049747e`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-4c43df099bd5222d20541e981f505ef0236a2552"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   package_netbsd_386:
@@ -985,6 +985,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_netbsd_386
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -997,11 +998,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -1014,10 +1014,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -1029,7 +1029,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-4b8cbd864a636115604e6df60d7efdca4ca10db005effaedc8911a304a8d65dc`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-18540eb5e3fb4966b7be65ff9d66a255df72739e"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   package_darwin_amd64:
@@ -1038,6 +1038,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_darwin_amd64
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -1050,11 +1051,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -1067,10 +1067,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -1082,7 +1082,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-f7c19b8676cfe8c8d2a6a3720a2afd4a1f161ac157f5aef9efa4734687703563`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-754b4e6d0951cfb18ce402d95d9863a7051bb79d"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   package_freebsd_386:
@@ -1091,6 +1091,7 @@ jobs:
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
     - BINARY_NAME: vault
+    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_freebsd_386
     - BUILD_TAGS: vault
     - BUNDLE_NAME: vault_0.0.0-snapshot
@@ -1103,11 +1104,10 @@ jobs:
     - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
     - PRODUCT_EDITION: ''
     - PRODUCT_NAME: vault
-    - PRODUCT_REVISION: ''
     - PRODUCT_VERSION: 0.0.0-snapshot
     - PRODUCT_VERSION_MMP: 0.0.0
     - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'true'
+    - PUBLIC: 'YES'
     - YARN_VERSION: 1.19.1-1
     steps:
     - setup_remote_docker
@@ -1120,10 +1120,10 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
         command: make -C release load-builder-cache || echo "No builder cache found."
         name: Load builder layers from cache
@@ -1135,7 +1135,7 @@ jobs:
         destination: dist/public/vault_0.0.0-snapshot
         path: dist/public/vault_0.0.0-snapshot
     - save_cache:
-        key: null-{{checksum `release/.tmp/cache-keys/package-2735158722a385c7f09b437764d37199bdce6dccd217777654e3b2daf73c47c3`}}
+        key: package-{{checksum ".buildcache/cache-keys/package-0b8ee19233c84dee317a55fae82daef17e2fe005"}}
         paths:
         - dist/public/vault_0.0.0-snapshot
   pre-flight-checks:
@@ -1204,20 +1204,18 @@ jobs:
         name: Write package cache keys
     - restore_cache:
         keys:
-        - buildcache-v0-base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
-        - buildcache-v0-base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}-yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}-ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}
-        - buildcache-v0-base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}-yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}
-        - buildcache-v0-base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
+        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
+        command: make -f release/build.mk static_24b2c191871f61aa3b8d496820c689ff4c60e495-restore
     - run:
-        command: make -C release build-all-layers
+        command: make -f release/build.mk static_24b2c191871f61aa3b8d496820c689ff4c60e495-image
     - run:
-        command: make -C release save-builder-cache
-        name: Update and save builder layers to cache
+        command: make -f release/build.mk static_24b2c191871f61aa3b8d496820c689ff4c60e495-save
     - save_cache:
-        key: buildcache-v0-base-{{checksum ".buildcache/base_25e9840bf289aaf9dd6e86ac9c7be90009517f66cbc9efbb385ed676efef9ed9-cache-key"}}yarn-{{checksum ".buildcache/yarn_246d7eef3c85dfaba9ae31ffb25d5e52a864121c527907337bd6e5688a49b7aa-cache-key"}}ui-{{checksum ".buildcache/ui_778061c2b8e11b2550d4dae696decb960c312b34f4f7c0934fca9fe7a4c39817-cache-key"}}static-{{checksum ".buildcache/static_7e16e7cb2b063e5aa8a9127c279deacef009efca50ad10793ae43701a17a0b1c-cache-key"}}
+        key: buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
         paths:
         - .buildcache/docker-builder-cache.tar.gz
 workflows:
