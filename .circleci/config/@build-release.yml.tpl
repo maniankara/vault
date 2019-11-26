@@ -32,7 +32,7 @@ jobs:
             {{- range .circlecicacheprefixes}}
             - {{$cacheVersion}}-{{.}}
             {{- end}}
-      - run: make -f release/layer.mk {{.name}}-load
+      - run: make -f release/layer.mk {{.name}}-load || echo "No cached builder image to load."
       - run: make -f release/layer.mk {{.name}}-image
       - run: make -f release/layer.mk {{.name}}-save
       - save_cache:

@@ -1227,7 +1227,7 @@ jobs:
         - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
         - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
     - run:
-        command: make -f release/layer.mk static_24b2c191871f61aa3b8d496820c689ff4c60e495-load
+        command: make -f release/layer.mk static_24b2c191871f61aa3b8d496820c689ff4c60e495-load || echo "No cached builder image to load."
     - run:
         command: make -f release/layer.mk static_24b2c191871f61aa3b8d496820c689ff4c60e495-image
     - run:
