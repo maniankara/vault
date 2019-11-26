@@ -79,9 +79,9 @@ meta:
   # enabling us avoid invalidating layer cachces unnecessarily.
   PRODUCT_REVISION: ""
 
-# templates contain gomplate template strings. Each of these is rendered per package
+# templates contain golang template strings. Each of these is rendered per package
 # using that packages values (including any default values), and then added to that
-# package. To find out more about gomplate, see https://docs.gomplate.ca/
+# package.
 # Note that templates MAY NOT refer to each other.
 templates:
   # PRODUCT_VERSION_MMP is just the major.minor.prerelease fields of the PRODUCT_VERSION.

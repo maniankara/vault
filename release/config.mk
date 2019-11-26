@@ -71,37 +71,53 @@ else
 PACKAGE_SOURCE_ID := $(shell git rev-parse $(GIT_REF))
 endif
 
+# REQ_TOOLS detects availability of a set of tools, and optionally auto-installs them.
+define REQ_TOOLS
+GROUP_NAME := $(1)
+INSTALL_TOOL := $(2)
+INSTALL_COMMAND := $(3)
+TOOLS := $(4)
+TOOL_INSTALL_LOG := $(CACHE_ROOT)/tool-install-$$(GROUP_NAME).log
+INSTALL_TOOL_AVAILABLE := $$(shell command -v $$(INSTALL_TOOL) > /dev/null 2>&1 && echo YES)
+MISSING_PACKAGES := $$(shell \
+	for T in $$(TOOLS); do \
+		BIN=$$$$(echo $$$$T | cut -d':' -f1); \
+	if ! command -v $$$$BIN > /dev/null 2>&1; then \
+		echo $$$$T | cut -d':' -f2; \
+	fi; \
+	done | sort | uniq)
+ifneq ($$(MISSING_PACKAGES),)
+ifneq ($$(INSTALL_TOOL_AVAILABLE),YES)
+$$(error You are missing required tools, please run 'brew install $$(MISSING_PACKAGES)'.)
+else
+RESULT := $$(shell $$(INSTALL_COMMAND) $$(MISSING_PACKAGES) 2>&1 | tee $$(TOOL_INSTALL_LOG) && echo OK)
+ifneq ($$(RESULT),OK)
+$$(info Failed to auto-install packages with command $$(INSTALL_COMMAND) $$(MISSING_PACKAGES))
+else
+$$(info Installed tools successfully.)
+endif
+endif
+endif
+endef
+
+ifeq ($(shell uname),Darwin)
+# On Mac, try to install things with homebrew.
+BREW_TOOLS := gtouch:coreutils gtar:gnu-tar jq:jq yq:python-yq
+$(eval $(call REQ_TOOLS,core,brew,brew install,$(TOOLS)))
+else
+# If not mac, assume debian and try to install using apt.
+APT_TOOLS := pip3:python3-pip jq:jq
+$(call REQ_TOOLS,apt-tools,apt-get,apt-get update && apt-get install -y,$(APT_TOOLS))
+PIP_TOOLS := yq:yq
+$(call REQ_TOOLS,pip-tools,pip,pip install,$(PIP_TOOLS))
+
+endif
+
 # We rely on GNU touch and tar. On macOS, we assume they are installed as gtouch and gtar
 # by homebrew.
 ifeq ($(shell uname),Darwin)
 TOUCH := gtouch
 TAR := gtar
-# List tool-name:brew package to search for installed tools.
-TOOLS := gtouch:coreutils gtar:gnu-tar 
-MISSING_PACKAGES := $(shell \
-	for T in $(TOOLS); do \
-		BIN=$$(echo $$T | cut -d':' -f1); \
-		if ! command -v $$BIN > /dev/null 2>&1; then \
-			echo $$T | cut -d':' -f2; \
-		fi; \
-	done)
-ifneq ($(MISSING_PACKAGES),)
-$(error You are missing required tools, please run 'brew install $(MISSING_PACKAGES)'.)
-endif
-else
-TOUCH := touch
-TAR := tar
-TOOLS := touch tar
-MISSING_PACKAGES := $(shell \
-	for T in $(TOOLS); do \
-		BIN=$$(echo $$T | cut -d':' -f1); \
-		if ! command -v $$BIN > /dev/null 2>&1; then \
-			echo $$T | cut -d':' -f2; \
-		fi; \
-	done)
-ifneq ($(MISSING_PACKAGES),)
-$(error You are missing required tools, please install: $(MISSING_PACKAGES).)
-endif
 endif
 
 ### Utilities and constants
