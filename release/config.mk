@@ -122,7 +122,7 @@ else
 APT_TOOLS := pip3:python3-pip jq:jq
 $(eval $(call REQ_TOOLS,apt-tools,apt-get,sudo apt-get update && sudo apt-get install -y,$(APT_TOOLS)))
 PIP_TOOLS := yq:yq
-$(eval $(call REQ_TOOLS,pip-tools,pip,pip install,$(PIP_TOOLS)))
+$(eval $(call REQ_TOOLS,pip-tools,pip3,pip3 install,$(PIP_TOOLS)))
 
 endif
 
