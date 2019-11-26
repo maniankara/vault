@@ -12,8 +12,6 @@ PACKAGE_CACHE_KEY_FILES := $(shell yq -r '.packages[].meta.PACKAGE_CACHE_KEY_FIL
 PACKAGE_CACHE_KEY_FILES := $(addprefix $(REPO_ROOT)/,$(PACKAGE_CACHE_KEY_FILES))
 
 packages:
-	@# Remove layers.lock entirely to avoid buildup of old layers.
-	@# Easier to do that here than in packages.mk.
 	@rm -rf packages.lock
 	@packagespec lock
 

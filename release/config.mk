@@ -102,14 +102,14 @@ endef
 
 ifeq ($(shell uname),Darwin)
 # On Mac, try to install things with homebrew.
-BREW_TOOLS := gtouch:coreutils gtar:gnu-tar jq:jq yq:python-yq
+BREW_TOOLS := gtouch:coreutils gtar:gnu-tar jq:jq yq:python-yq blargle:bler
 $(eval $(call REQ_TOOLS,core,brew,brew install,$(TOOLS)))
 else
 # If not mac, assume debian and try to install using apt.
 APT_TOOLS := pip3:python3-pip jq:jq
-$(call REQ_TOOLS,apt-tools,apt-get,apt-get update && apt-get install -y,$(APT_TOOLS))
+$(eval $(call REQ_TOOLS,apt-tools,apt-get,apt-get update && apt-get install -y,$(APT_TOOLS)))
 PIP_TOOLS := yq:yq
-$(call REQ_TOOLS,pip-tools,pip,pip install,$(PIP_TOOLS))
+$(eval $(call REQ_TOOLS,pip-tools,pip,pip install,$(PIP_TOOLS)))
 
 endif
 
