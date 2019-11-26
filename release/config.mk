@@ -100,10 +100,12 @@ ifneq ($$(MISSING_PACKAGES),)
 ifneq ($$(ATTEMPT_AUTO_INSTALL),YES)
 $$(error You are missing required tools, please run '$$(INSTALL_COMMAND) $$(MISSING_PACKAGES)'.)
 else
-RESULT := $$(shell $$(INSTALL_COMMAND) $$(MISSING_PACKAGES) 2>&1 | tee $$(TOOL_INSTALL_LOG) && echo OK)
+RESULT := $$(shell $$(INSTALL_COMMAND) $$(MISSING_PACKAGES) 2>&1 > $$(TOOL_INSTALL_LOG) && echo OK)
 ifneq ($$(RESULT),OK)
 $$(info Failed to auto-install packages with command $$(INSTALL_COMMAND) $$(MISSING_PACKAGES))
+$$(error $$(shell cat $$(TOOL_INSTALL_LOG)))
 else
+$$(info $$(TOOL_INSTALL_LOG))
 $$(info Installed tools successfully.)
 endif
 endif
