@@ -101,8 +101,8 @@ ifneq ($$(MISSING_PACKAGES),)
 ifneq ($$(ATTEMPT_AUTO_INSTALL),YES)
 $$(error You are missing required tools, please run '$$(INSTALL_COMMAND) $$(MISSING_PACKAGES)'.)
 else
-RESULT := $$(shell $$(INSTALL_COMMAND) $$(MISSING_PACKAGES) 2>&1 > $$(TOOL_INSTALL_LOG) && echo OK)
-ifneq ($$(RESULT),OK)
+RESULT := $$(shell $$(INSTALL_COMMAND) $$(MISSING_PACKAGES) && echo OK > $$(TOOL_INSTALL_LOG))
+ifneq ($$(shell cat $$(TOOL_INSTALL_LOG)),OK)
 $$(info Failed to auto-install packages with command $$(INSTALL_COMMAND) $$(MISSING_PACKAGES))
 $$(error $$(shell cat $$(TOOL_INSTALL_LOG)))
 else
@@ -115,8 +115,8 @@ endef
 
 ifeq ($(shell uname),Darwin)
 # On Mac, try to install things with homebrew.
-BREW_TOOLS := gtouch:coreutils gtar:gnu-tar jq:jq yq:python-yq blargle:bler
-$(eval $(call REQ_TOOLS,core,brew,brew install,$(TOOLS)))
+BREW_TOOLS := gtouch:coreutils gtar:gnu-tar jq:jq yq:python-yq
+$(eval $(call REQ_TOOLS,core,brew,brew install,$(BREW_TOOLS)))
 else
 # If not mac, assume debian and try to install using apt.
 APT_TOOLS := pip3:python3-pip jq:jq
