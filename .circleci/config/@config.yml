@@ -38,7 +38,7 @@ executors:
     docker:
       - image: circleci/buildpack-deps
     environment:
-      AUTO_INSTALL_TOOLS: YES
+      AUTO_INSTALL_TOOLS: 'YES'
     shell: /usr/bin/env bash -euo pipefail -c
   go:
     docker:
