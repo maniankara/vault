@@ -131,6 +131,9 @@ endif
 ifeq ($(shell uname),Darwin)
 TOUCH := gtouch
 TAR := gtar
+else
+TOUCH := touch
+TAR := tar
 endif
 
 ### Utilities and constants
