@@ -84,6 +84,7 @@ $(1)_NAME           = $(1)
 $(1)_BASE           = $(2)
 $(1)_SOURCE_INCLUDE = $(3)
 $(1)_SOURCE_EXCLUDE = $(4) $(ALWAYS_EXCLUDE_SOURCE)
+$(1)_CACHE_KEY_FILE = $(REPO_ROOT)/$(5)
 
 $(1)_CURRENT_LINK                                     = $(CACHE_ROOT)/layers/$$($(1)_NAME)/current
 $(1)_IMAGE_LINK                                       = $(CACHE_ROOT)/layers/$$($(1)_NAME)/current/image.marker
@@ -207,10 +208,9 @@ $(1)-debug:
 $(1)-id:
 	@echo $(1)-$$($(1)_SOURCE_ID)
 
-$(1)_CACHE_KEY_FILE := $(CACHE_ROOT)/$(1)-cache-key
-
 $(1)-write-cache-key:
 	@FILE=$$($(1)_CACHE_KEY_FILE); \
+		mkdir -p $$(dir $$($(1)_CACHE_KEY_FILE)); \
 		echo $(1)-$$($(1)_SOURCE_ID) > $$$$FILE; \
 		echo "==> Cache key for $(1) written to $$$$FILE:"; \
 		cat $$$$FILE
