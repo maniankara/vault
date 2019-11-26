@@ -275,6 +275,7 @@ endif
 
 # Save the docker image as a tar.gz.
 $$($(1)_IMAGE_ARCHIVE): | $$($(1)_IMAGE)
+	@mkdir -p $$@; \
 	IMAGE=$$$$(cat $$($(1)_IMAGE)); \
 		echo "==> Saving $(1) image to $$@"; \
 		docker save $$$$IMAGE \
