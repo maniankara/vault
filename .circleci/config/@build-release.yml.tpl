@@ -70,12 +70,20 @@ jobs:
           {{- range .meta.CIRCLECI_CACHE_KEY_PREFIXES}}
           - {{$cacheVersion}}-{{.}}
           {{- end}}
-      - load-builder-cache
+      - restore_cache:
+          key: '{{.meta.PACKAGE_CACHE_KEY}}'
+      - run: make -f release/layer.mk {{.inputs.BUILDER_LAYER_ID}}-load || echo "No cached builder image to load."
       - run: make -C release package
       - run: ls -lahR dist/
       - store_artifacts:
           path: {{.inputs.PACKAGE_OUT_ROOT}}
           destination: {{.inputs.PACKAGE_OUT_ROOT}}
+      # Save builder image cache.
+      - save_cache:
+          key: '{{$cacheVersion}}-{{index .meta.CIRCLECI_CACHE_KEY_PREFIXES 0}}'
+          paths:
+            - .buildcache/archives/{{.inputs.BUILDER_LAYER_ID}}.tar.gz
+      # Save package cache.
       - save_cache:
           key: '{{.meta.PACKAGE_CACHE_KEY}}'
           paths:
