@@ -1,7 +1,7 @@
 {{$packages := (datasource "package-list" ).packages }}
 {{$layers := (datasource "package-list" ).layers -}}
 # Any change to $cacheVersion invalidates all build layer and package caches.
-{{$cacheVersion := "buildcache-v0" -}}
+{{$cacheVersion := "buildcache-v1" -}}
 # Current $cacheVersion: {{$cacheVersion}}
 
 workflows:
