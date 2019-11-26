@@ -1,8 +1,9 @@
 # Include config.mk relative to this file (this allows us to invoke this file
 # from different directories safely).
-include $(shell dirname $(lastword $(MAKEFILE_LIST)))/config.mk
+include config.mk
 
-.PHONY: packages build
+.PHONY: packages commands build package write-builder-cache-keys build-all-layers save-builder-cache load-builder-cache \
+	write-package-cache-keys build-all
 
 REPO_ROOT := $(shell git rev-parse --show-toplevel) 
 GOOS ?= $(shell go env GOOS 2>/dev/null || echo linux)
@@ -11,18 +12,21 @@ GOARCH ?= $(shell go env GOARCH 2>/dev/null || echo amd64)
 packages:
 	@# Remove layers.lock entirely to avoid buildup of old layers.
 	@# Easier to do that here than in packages.mk.
-	@rm -rf layers.lock
-	@$(MAKE) -f packages.mk lock
+	@rm -rf packages.lock
+	@packagespec lock
 
 commands:
 	@$(MAKE) -f packages.mk commands
 
 # build is a convenience target for local builds, do not use in CI.
 # Instead, use `make package`.
-build: .tmp/default-package-index commands
+build: $(LOCK)
 	@echo "==> Building default package for GOOS=$(GOOS) GOARCH=$(GOARCH)"
-	@cat .tmp/commands/$$(cat $<).sh
-	@$(SHELL) "$$(cat .tmp/commands/$$(cat $<).sh)"
+	@COMMAND=$$(yq -r '.packages[] | \
+		select(.inputs.GOOS=="$(GOOS)" and .inputs.GOARCH=="$(GOARCH)") | \
+		.meta.LOCAL_BUILD_COMMAND' < $(LOCK) | head -n1); \
+		echo "$$COMMAND"; \
+		$(SHELL) "$$COMMAND"
 
 package:
 	@$(MAKE) -C ../ -f release/build.mk package
@@ -53,9 +57,8 @@ build-all: commands
 # Its only significance is to make the 'make build' command build something relevant for this
 # machine by default. (The command files are 1-indexed for fun, hence the .key + 1.)
 .PHONY: .tmp/default-package-index
-.tmp/default-package-index: packages.lock
+.tmp/default-package-index: $(LOCK)
 	@mkdir -p .tmp
-	@yq -r '.packages | to_entries | .[] | select(.value.GOOS=="$(GOOS)" and .value.GOARCH=="$(GOARCH)") | .key + 1' < packages.lock | head -n1 > $@
 
 .PHONY: $(PACKAGE_CACHE_KEY_FILES)
 $(PACKAGE_CACHE_KEY_FILES):

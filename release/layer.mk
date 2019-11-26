@@ -61,9 +61,9 @@
 
 # Include config.mk relative to this file (this allows us to invoke this file
 # from different directories safely.
-include $(shell dirname $(lastword $(MAKEFILE_LIST)))/config.mk
+include $(dir $(lastword $(MAKEFILE_LIST)))config.mk
 
-DOCKERFILES_DIR := $(RELEASE_DIR)/layers.lock
+DOCKERFILES_DIR := $(RELEASE_DIR)/$(LOCKDIR)/layers
 
 ### END BUILDER IMAGE LAYERS
 
@@ -290,7 +290,7 @@ endef
 ### END LAYER
 
 # Include the generated instructions to build each layer.
-include $(shell find release/layers.lock -name '*.mk')
+include $(shell find $(DOCKERFILES_DIR) -name '*.mk')
 
 # Eagerly update the docker image marker files.
 UPDATE_MARKERS_OUTPUT := $(strip $(foreach L,$(LAYERS),$(shell $(call $(L)_UPDATE_MARKER_FILE))))

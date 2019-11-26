@@ -34,14 +34,6 @@ defaults:
   # This should be used in the PACKAGE_NAME template.
   PRODUCT_VERSION: 0.0.0-snapshot
 
-  # PRODUCT_REVISION is the revision of the source code to build.
-  # This is a git ref i.e. a commit SHA, branch name or tag.
-  # If left empty ("") then default to building whatever is in the current
-  # working tree, even if it is dirty (contains uncommitted changes).
-  # This should usually be left empty, it is overridden on a one-off basis
-  # when producing release or custom builds.
-  PRODUCT_REVISION: ""
-
   # PUBLIC dictates if this package may eventually be uploaded to
   # releases.hashicorp.com where it will be accessible to the world.
   PUBLIC: YES
@@ -62,6 +54,30 @@ defaults:
   # default in the build container.
   CGOENABLED: 0
   GO111MODULE: "off"
+
+# meta contains additional metadata to pass into the build. This metadata does not
+# participate in the PACKAGE_SPEC_ID and so changing it does not directly change cache
+# keys for layers or packages. In addition, metadata may not be overridden per-package
+# and is not available to templates.
+#
+# We need this meta layer spearate from the build inputs in order to pre-calculate
+# useful fields for CI workflow template rendering etc, without invalidating all the
+# layer caches needlessly.
+#
+# Additional keys are automatically added to meta when running `make packages` these
+# are things like the calcualted PACKAGE_SPEC_ID and calculated cache keys etc.
+meta:
+  # PRODUCT_REVISION is the revision of the source code to build.
+  # This is a git ref i.e. a commit SHA, branch name or tag.
+  # If left empty ("") then default to building whatever is in the current
+  # working tree, even if it is dirty (contains uncommitted changes).
+  # This should usually be left empty, it is overridden on a one-off basis
+  # when producing release or custom builds.
+  #
+  # PRODUCT_REVISION is a meta field, because multiple different revisions here may
+  # point to the same underlying Git commits and/or git trees, making them equivalent,
+  # enabling us avoid invalidating layer cachces unnecessarily.
+  PRODUCT_REVISION: ""
 
 # templates contain gomplate template strings. Each of these is rendered per package
 # using that packages values (including any default values), and then added to that
@@ -101,6 +117,29 @@ templates:
     {{ "dist" -}}
     /{{- if .PUBLIC}}public{{else}}private{{end -}}
     /{{- .PRODUCT_NAME}}_{{.PRODUCT_VERSION}}{{if .PRODUCT_EDITION}}+{{.PRODUCT_EDITION}}{{end -}}
+
+# build-command-template is a template for the command we run in the container to produce a package.
+# This template recieves a full package definition from packages.lock/pkgs.yml, so can refer to any
+# of the inputs or metadata. In addition, it recieves a top-level key "build" containing the following
+# fields:
+#
+#   .build.ENV               : All the inputs for this build in the form NAME='VALUE', separated with spaces.
+#   .build.PACKAGE_SOURCE_ID : The Git commit SHA (if clean) or "dirty_<unique SHA>" if dirty.
+#   .build.PACKAGE_DIR       : Absolute directory to output the final package to.
+#   .build.PACKAGE_FILENAME  : The filename of the package to output to PACKAGE_DIR.
+#
+# It's important to note that the build-command is not evaluated at package lock time, but only
+# at build time. Therefore, referencing metadata in the build command does not affect the address
+# (cache-key) of the binary. The build command template itself (before being rendered) is considered
+# an input, so changing it will invalidate package caches.
+build-command-template: >
+  {{.build.ENV}} go build -v -tags '{{.inputs.BUILD_TAGS}}' -ldflags "
+    -X github.com/hashicorp/vault/vendor/github.com/hashicorp/vault/sdk/version.GitCommit={{.build.PACKAGE_SOURCE_ID}}
+    -X github.com/hashicorp/vault/vendor/github.com/hashicorp/vault/sdk/version.Version={{.inputs.PRODUCT_VERSION_MMP}}
+    -X github.com/hashicorp/vault/vendor/github.com/hashicorp/vault/sdk/version.Prerelease={{.inputs.PRODUCT_VERSION_PRE}}
+  " -o {{.build.PACKAGE_DIR}}/{{inputs.BINARY_NAME}}
+  && cd {{.build.PACKAGE_DIR}} && zip {{.build.PACKAGE_FILENAME}} {{.inputs.BINARY_NAME}}
+
 
 
 # packages is the full set of packages we are able to build based on a single commit
@@ -202,15 +241,12 @@ layers:
   # Dockerfile into consideration, rather than all of them.
   # The comments look like this:
   #
-  #     # Parent layer checksum: {{env.Getenv "BASE_LAYER_CHECKSUM"}}
-  #
   # Note that the source ID of the _images_ built using these Dockerfiles
   # is additionally dictated by the source included in that layer.
   - name: yarn
     source-include: ui/package.json ui/yarn.lock
     source-exclude: ""
     dockerfile: |-
-      # Parent layer checksum: {{env.Getenv "BASE_LAYER_CHECKSUM"}}
       ARG BASE_IMAGE
       FROM $BASE_IMAGE
       COPY . ./
@@ -220,7 +256,6 @@ layers:
     source-include: ui/
     source-exclude: ""
     dockerfile: |-
-      # Parent layer checksum: {{env.Getenv "BASE_LAYER_CHECKSUM"}}
       ARG BASE_IMAGE
       FROM $BASE_IMAGE
       COPY . ./
@@ -229,7 +264,6 @@ layers:
     source-include: .
     source-exclude: .circleci/ release/
     dockerfile: |-
-      # Parent layer checksum: {{env.Getenv "BASE_LAYER_CHECKSUM"}}
       ARG BASE_IMAGE
       FROM $BASE_IMAGE
       COPY . ./
