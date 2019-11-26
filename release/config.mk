@@ -14,6 +14,10 @@ SHELL := /usr/bin/env bash -euo pipefail -c
 
 REPO_ROOT := $(shell git rev-parse --show-toplevel)
 
+# Set AUTO_INSTALL_TOOLS to YES in CI to have any missing required tools installed
+# automatically.
+AUTO_INSTALL_TOOLS ?= NO
+
 # RELEASE_DIR is the path to the dir containing all the
 # release makefiles etc., relative from the repo root.
 # Typically this is 'release'.
@@ -79,6 +83,12 @@ INSTALL_COMMAND := $(3)
 TOOLS := $(4)
 TOOL_INSTALL_LOG := $(CACHE_ROOT)/tool-install-$$(GROUP_NAME).log
 INSTALL_TOOL_AVAILABLE := $$(shell command -v $$(INSTALL_TOOL) > /dev/null 2>&1 && echo YES)
+ATTEMPT_AUTO_INSTALL := NO
+ifeq ($$(INSTALL_TOOL_AVAILABLE),YES)
+ifeq ($$(AUTO_INSTALL_TOOLS),YES)
+ATTEMPT_AUTO_INSTALL := YES
+endif
+endif
 MISSING_PACKAGES := $$(shell \
 	for T in $$(TOOLS); do \
 		BIN=$$$$(echo $$$$T | cut -d':' -f1); \
@@ -87,8 +97,8 @@ MISSING_PACKAGES := $$(shell \
 	fi; \
 	done | sort | uniq)
 ifneq ($$(MISSING_PACKAGES),)
-ifneq ($$(INSTALL_TOOL_AVAILABLE),YES)
-$$(error You are missing required tools, please run 'brew install $$(MISSING_PACKAGES)'.)
+ifneq ($$(ATTEMPT_AUTO_INSTALL),YES)
+$$(error You are missing required tools, please run '$$(INSTALL_COMMAND) $$(MISSING_PACKAGES)'.)
 else
 RESULT := $$(shell $$(INSTALL_COMMAND) $$(MISSING_PACKAGES) 2>&1 | tee $$(TOOL_INSTALL_LOG) && echo OK)
 ifneq ($$(RESULT),OK)
@@ -107,7 +117,7 @@ $(eval $(call REQ_TOOLS,core,brew,brew install,$(TOOLS)))
 else
 # If not mac, assume debian and try to install using apt.
 APT_TOOLS := pip3:python3-pip jq:jq
-$(eval $(call REQ_TOOLS,apt-tools,apt-get,apt-get update && apt-get install -y,$(APT_TOOLS)))
+$(eval $(call REQ_TOOLS,apt-tools,apt-get,sudo apt-get update && sudo apt-get install -y,$(APT_TOOLS)))
 PIP_TOOLS := yq:yq
 $(eval $(call REQ_TOOLS,pip-tools,pip,pip install,$(PIP_TOOLS)))
 

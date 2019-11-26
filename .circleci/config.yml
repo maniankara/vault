@@ -9,6 +9,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_darwin_386
@@ -103,11 +104,14 @@ jobs:
         key: package-{{checksum ".buildcache/cache-keys/package-63b0548b6ab8cea9f140a55aa8552e286989d22c"}}
     - run:
         command: ls -lahR dist/
+    environment:
+    - AUTO_INSTALL_TOOLS: true
   package_linux_arm64:
     docker:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_linux_arm64
@@ -161,6 +165,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_windows_386
@@ -233,6 +238,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_netbsd_amd64
@@ -286,6 +292,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_linux_arm
@@ -339,6 +346,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_solaris_amd64
@@ -448,6 +456,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_freebsd_arm
@@ -666,6 +675,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_linux_amd64
@@ -719,6 +729,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_windows_amd64
@@ -772,6 +783,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_linux_386
@@ -825,6 +837,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_freebsd_amd64
@@ -878,6 +891,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_openbsd_386
@@ -931,6 +945,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_openbsd_amd64
@@ -984,6 +999,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_netbsd_386
@@ -1037,6 +1053,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_darwin_amd64
@@ -1090,6 +1107,7 @@ jobs:
     - image: circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     environment:
+    - AUTO_INSTALL_TOOLS: true
     - BINARY_NAME: vault
     - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
     - BUILD_JOB_NAME: package_freebsd_386
@@ -1218,6 +1236,8 @@ jobs:
         key: buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
         paths:
         - .buildcache/docker-builder-cache.tar.gz
+    environment:
+    - AUTO_INSTALL_TOOLS: true
 workflows:
   build-release:
     jobs:
