@@ -733,6 +733,7 @@ layers:
   sourceexclude: ""
   dockerfilepath: packages.lock/layers/base_02376a8228ddcfc3d014c896ea4897e75582221a.Dockerfile
   makefilepath: packages.lock/layers/base_02376a8228ddcfc3d014c896ea4897e75582221a.mk
+  archivefile: .buildcache/archives/base_02376a8228ddcfc3d014c896ea4897e75582221a.tar.gz
   circlecicacheprefixes:
   - base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
 - depth: 1
@@ -748,6 +749,7 @@ layers:
   sourceexclude: ""
   dockerfilepath: packages.lock/layers/yarn_4b8331e0d10d5546bf2b0a2b368376e7b9d7548f.Dockerfile
   makefilepath: packages.lock/layers/yarn_4b8331e0d10d5546bf2b0a2b368376e7b9d7548f.mk
+  archivefile: .buildcache/archives/yarn_4b8331e0d10d5546bf2b0a2b368376e7b9d7548f.tar.gz
   circlecicacheprefixes:
   - base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum
     ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
@@ -765,6 +767,7 @@ layers:
   sourceexclude: ""
   dockerfilepath: packages.lock/layers/ui_91f1adae63f46e6e66c3c656ac7d3575e9a107cc.Dockerfile
   makefilepath: packages.lock/layers/ui_91f1adae63f46e6e66c3c656ac7d3575e9a107cc.mk
+  archivefile: .buildcache/archives/ui_91f1adae63f46e6e66c3c656ac7d3575e9a107cc.tar.gz
   circlecicacheprefixes:
   - base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum
     ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum
@@ -785,6 +788,7 @@ layers:
   sourceexclude: .circleci/ release/
   dockerfilepath: packages.lock/layers/static_24b2c191871f61aa3b8d496820c689ff4c60e495.Dockerfile
   makefilepath: packages.lock/layers/static_24b2c191871f61aa3b8d496820c689ff4c60e495.mk
+  archivefile: .buildcache/archives/static_24b2c191871f61aa3b8d496820c689ff4c60e495.tar.gz
   circlecicacheprefixes:
   - base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum
     ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum

@@ -85,6 +85,7 @@ $(1)_BASE           = $(2)
 $(1)_SOURCE_INCLUDE = $(3)
 $(1)_SOURCE_EXCLUDE = $(4) $(ALWAYS_EXCLUDE_SOURCE)
 $(1)_CACHE_KEY_FILE = $(REPO_ROOT)/$(5)
+$(1)_IMAGE_ARCHIVE  = $(REPO_ROOT)/$(6)
 
 $(1)_CURRENT_LINK                                     = $(CACHE_ROOT)/layers/$$($(1)_NAME)/current
 $(1)_IMAGE_LINK                                       = $(CACHE_ROOT)/layers/$$($(1)_NAME)/current/image.marker
@@ -153,7 +154,6 @@ $(1)_PHONY_TARGETS := $$(addprefix $$($(1)_NAME)-,$$($(1)_PHONY_TARGET_NAMES))
 $(1)_IMAGE             := $$($(1)_CACHE)/image.marker
 $(1)_LAYER_REFS        := $$($(1)_CACHE)/image.layer_refs
 $(1)_IMAGE_TIMESTAMP   := $$($(1)_CACHE)/image.created_time
-$(1)_IMAGE_ARCHIVE     := $$($(1)_CACHE)/image.tar.gz
 $(1)_SOURCE_ARCHIVE    := $$($(1)_CACHE)/source.tar.gz
 
 $(1)_TARGETS = $$($(1)_PHONY_TARGETS)
