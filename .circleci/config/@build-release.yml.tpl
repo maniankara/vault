@@ -38,7 +38,7 @@ jobs:
       - save_cache:
           key: {{$cacheVersion}}-{{index .circlecicacheprefixes 0}}
           paths:
-            - .buildcache/docker-builder-cache.tar.gz
+            - {{.archivefile}}
       {{- end}}{{end}}
 
   bundle-releases:

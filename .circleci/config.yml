@@ -1251,7 +1251,7 @@ jobs:
     - save_cache:
         key: buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
         paths:
-        - .buildcache/docker-builder-cache.tar.gz
+        - .buildcache/archives/static_24b2c191871f61aa3b8d496820c689ff4c60e495.tar.gz
     environment:
     - AUTO_INSTALL_TOOLS: 'YES'
 workflows:
