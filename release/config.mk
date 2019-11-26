@@ -12,26 +12,25 @@ CONFIG_INCLUDED := YES
 # Set SHELL to strict mode, in a way compatible with both old and new GNU make.
 SHELL := /usr/bin/env bash -euo pipefail -c
 
+REPO_ROOT := $(shell git rev-parse --show-toplevel)
+
 # RELEASE_DIR is the path to the dir containing all the
 # release makefiles etc., relative from the repo root.
 # Typically this is 'release'.
-RELEASE_DIR := release
+RELEASE_DIR := $(REPO_ROOT)/release
 
 # CACHE_ROOT is the build cache directory.
-CACHE_ROOT ?= .buildcache
+CACHE_ROOT ?= $(REPO_ROOT)/.buildcache
 
 # SPEC is the human-managed description of which packages we are able to build.
-SPEC := packages.yml
+SPEC := $(RELEASE_DIR)/packages.yml
 
 # LOCKDIR contains the lockfile and layer files.
-LOCKDIR := packages.lock
+LOCKDIR := $(RELEASE_DIR)/packages.lock
 
 # LOCK is the generated fully-expanded rendition of SPEC, for use in generating CI
 # pipelines and other things.
 LOCK := $(LOCKDIR)/pkgs.yml
-
-# PACKAGE_CACHE_KEY_FILES is the place we write package cache key files.
-PACKAGE_CACHE_KEY_FILES := .tmp/cache-keys
 
 # ALWAYS_EXCLUDE_SOURCE prevents source from these directories from taking
 # part in the SOURCE_ID, or from being sent to the builder image layers.
@@ -71,8 +70,6 @@ PACKAGE_SOURCE_ID := $(DIRTY)$(shell git rev-parse $(GIT_REF))
 else
 PACKAGE_SOURCE_ID := $(shell git rev-parse $(GIT_REF))
 endif
-
-
 
 # We rely on GNU touch and tar. On macOS, we assume they are installed as gtouch and gtar
 # by homebrew.
@@ -116,10 +113,6 @@ QUOTE := $(shell echo "'")
 QUOTE_LIST = $(addprefix $(QUOTE),$(addsuffix $(QUOTE),$(1)))
 GIT_EXCLUDE_LIST = $(call QUOTE_LIST,$(addprefix $(1)))
 ### End utilities and constants.
-
-
-
-
 
 # End including config once only.
 endif

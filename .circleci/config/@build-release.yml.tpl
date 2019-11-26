@@ -1,6 +1,9 @@
 {{- $packages := (datasource "package-list" ).packages -}}
 {{- $layers := (datasource "package-list" ).layers -}}
+
+# Any change to $cacheVersion invalidates all build layer and package caches.
 {{- $cacheVersion := "buildcache-v0" -}}
+
 workflows:
   build-release:
     jobs:
@@ -29,9 +32,9 @@ jobs:
             {{- range .circlecicacheprefixes}}
             - {{$cacheVersion}}-{{.}}
             {{- end}}
-      - run: make -f release/build.mk {{.name}}-restore
-      - run: make -f release/build.mk {{.name}}-image
-      - run: make -f release/build.mk {{.name}}-save
+      - run: make -f release/layer.mk {{.name}}-restore
+      - run: make -f release/layer.mk {{.name}}-image
+      - run: make -f release/layer.mk {{.name}}-save
       - save_cache:
           key: {{$cacheVersion}}-{{index .circlecicacheprefixes 0}}
           paths:
@@ -46,7 +49,6 @@ jobs:
       {{- range $packages}}
       - "load-{{.inputs.BUILD_JOB_NAME}}"{{end}}
       - run: ls -lahR dist/
-
 
 {{- range $packages}}
   {{.inputs.BUILD_JOB_NAME}}:

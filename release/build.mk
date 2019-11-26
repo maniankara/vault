@@ -133,12 +133,3 @@ $(PACKAGE): $(BUILD_LAYER_IMAGE)
 
 source-id:
 	@echo $(PACKAGE_SOURCE_ID)
-
-cache-key: $(CACHE_KEY)
-	@echo "==> Cache key for $(PACKAGE_NAME) written to $<"
-
-CACHE_KEY := $(CACHE_ROOT)/cache-keys/package-$(PACKAGE_SPEC_ID)
-# CACHE_KEY writes this package's cache key.
-$(CACHE_KEY):
-	@mkdir -p $@
-	@echo $(PACKAGE_SOURCE_ID) > $@

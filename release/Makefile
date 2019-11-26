@@ -1,13 +1,15 @@
-# Include config.mk relative to this file (this allows us to invoke this file
+# Include config.mk relative to the repo root (this allows us to invoke this file
 # from different directories safely).
-include config.mk
+include $(shell git rev-parse --show-toplevel)/release/config.mk
 
 .PHONY: packages commands build package write-builder-cache-keys build-all-layers save-builder-cache load-builder-cache \
 	write-package-cache-keys build-all
 
-REPO_ROOT := $(shell git rev-parse --show-toplevel) 
 GOOS ?= $(shell go env GOOS 2>/dev/null || echo linux)
 GOARCH ?= $(shell go env GOARCH 2>/dev/null || echo amd64)
+
+PACKAGE_CACHE_KEY_FILES := $(shell yq -r '.packages[].meta.PACKAGE_CACHE_KEY_FILE' < $(LOCK))
+PACKAGE_CACHE_KEY_FILES := $(addprefix $(REPO_ROOT)/,$(PACKAGE_CACHE_KEY_FILES))
 
 packages:
 	@# Remove layers.lock entirely to avoid buildup of old layers.
@@ -28,41 +30,38 @@ build: $(LOCK)
 		echo "$$COMMAND"; \
 		$(SHELL) "$$COMMAND"
 
+# MK is shorthand for changing to repo root and selecting a make target
+# from a file in this directory.
+MK := $(MAKE) -C $(REPO_ROOT) -f $(RELEASE_DIR)/
+
 package:
-	@$(MAKE) -C ../ -f release/build.mk package
+	@$(MK)build.mk package
 
 write-builder-cache-keys:
 	@echo "==> Writing build layer cache keys"
-	@$(MAKE) -C ../ -f release/layer.mk write-cache-keys
+	@$(MK)layer.mk write-cache-keys
 
 build-all-layers:
 	@echo "==> Building all builder layers"
-	@$(MAKE) -C ../ -f release/layer.mk build-all-layers
+	@$(MK)layer.mk build-all-layers
 
 save-builder-cache:
 	@echo "==> Exporting Docker build cache"
-	@$(MAKE) -C ../ -f release/layer.mk save-builder-cache
+	@$(MK)layer.mk save-builder-cache
 
 load-builder-cache:
 	@echo "==> Loading Docker build cache"
-	@$(MAKE) -C ../ -f release/layer.mk load-builder-cache
+	@$(MK)layer.mk load-builder-cache
 
 write-package-cache-keys: $(PACKAGE_CACHE_KEY_FILES)
-	@echo "==> Package cache keys written to $<"
+	@echo "==> Package cache keys written:"
+	@echo $(PACKAGE_CACHE_KEY_FILES)
 
 build-all: commands
-	cd ../ && $(SHELL) "$$(cat release/.tmp/all-commands.sh)"
-
-# .tmp/default-package-index contains the index of the default package to build on this system.
-# Its only significance is to make the 'make build' command build something relevant for this
-# machine by default. (The command files are 1-indexed for fun, hence the .key + 1.)
-.PHONY: .tmp/default-package-index
-.tmp/default-package-index: $(LOCK)
-	@mkdir -p .tmp
+	cd $(REPO_ROOT) && $(SHELL) "$$(cat release/.tmp/all-commands.sh)"
 
 .PHONY: $(PACKAGE_CACHE_KEY_FILES)
 $(PACKAGE_CACHE_KEY_FILES):
-	@rm -rf $@; mkdir -p $@
-	@grep -F 'PACKAGE_SPEC_ID:' < $(LOCK) | cut -d':' -f2 | while read -r ID; do \
-		echo $(PACKAGE_SOURCE_ID) > $@/package-$$ID; \
-	done
+	mkdir -p $(dir $@)
+	echo $(PACKAGE_SOURCE_ID) > $@
+

@@ -4,211 +4,35 @@
 ### ***
 version: 2
 jobs:
-  package_darwin_386:
+  pre-flight-checks:
     docker:
     - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
     environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_darwin_386
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: '386'
-    - GOOS: darwin
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_darwin_386
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-647c5f61299d6ded5eecba75ce0afaacfc90d32f"}}
-        paths:
-        - dist/public/vault_0.0.0-snapshot
-  bundle-releases:
-    docker:
-    - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
+    - CCI_VERSION: 0.1.5691
+    shell: /usr/bin/env bash -euo pipefail
     steps:
     - checkout
     - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
+        command: |
+          export CCI_PATH=/tmp/circleci-cli/$CCI_VERSION
+          mkdir -p $CCI_PATH
+          NAME=circleci-cli_${CCI_VERSION}_${ARCH}
+          URL=$BASE/v${CCI_VERSION}/${NAME}.tar.gz
+          curl -sSL $URL \
+            | tar --overwrite --strip-components=1 -xz -C $CCI_PATH "${NAME}/circleci"
+          # Add circleci to the path for subsequent steps.
+          echo "export PATH=$CCI_PATH:\$PATH" >> $BASH_ENV
+          # Done, print some debug info.
+          set -x
+          . $BASH_ENV
+          which circleci
+          circleci version
+        environment:
+          ARCH: linux_amd64
+          BASE: https://github.com/CircleCI-Public/circleci-cli/releases/download
+        name: Install CircleCI CLI
     - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-647c5f61299d6ded5eecba75ce0afaacfc90d32f"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-754b4e6d0951cfb18ce402d95d9863a7051bb79d"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-0b8ee19233c84dee317a55fae82daef17e2fe005"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-0576b8f5ae7675d1cc5f62e1a45931ededc4f878"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-5899561c25e064b07ecd8203c8d481e7d234bd2c"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-91d5bff5b946d53a8f5bb666e09a20a3e619d2ab"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-df7ef0ed64df45593e4a8ba92e9fef33b0b4b778"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-f38d37ee6eb98b99f4532332747b8cc2f3ccf133"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-94c7b2112fc8d8d5ec2cf152d542e29c02ba1ab9"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-18540eb5e3fb4966b7be65ff9d66a255df72739e"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-a6623f1bc320f43797857d932b553c2060fbfe0c"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-fbd6af5ba2be20f99e97a355605fa97051fa16f3"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-4c43df099bd5222d20541e981f505ef0236a2552"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-df94b3d0dfc19550e950ce311ecca64d26e13a9d"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-5f1de37f7f9b573eb3485c242383a62d59e4836d"}}
-    - restore_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-63b0548b6ab8cea9f140a55aa8552e286989d22c"}}
-    - run:
-        command: ls -lahR dist/
-  package_linux_arm64:
-    docker:
-    - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_linux_arm64
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: arm64
-    - GOOS: linux
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_linux_arm64
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-94c7b2112fc8d8d5ec2cf152d542e29c02ba1ab9"}}
-        paths:
-        - dist/public/vault_0.0.0-snapshot
-  package_windows_386:
-    docker:
-    - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_windows_386
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: '386'
-    - GOOS: windows
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_windows_386
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-5f1de37f7f9b573eb3485c242383a62d59e4836d"}}
-        paths:
-        - dist/public/vault_0.0.0-snapshot
+        command: make ci-verify
   install-ui-dependencies:
     docker:
     - image: node:10-buster
@@ -228,165 +52,52 @@ jobs:
         key: yarn-lock-v1-{{ checksum "ui/yarn.lock" }}
         paths:
         - ui/node_modules
-  package_netbsd_amd64:
+  go-mod-download:
     docker:
-    - image: circleci/buildpack-deps
+    - image: golang:1.12.12-buster
     shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_netbsd_amd64
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: amd64
-    - GOOS: netbsd
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_netbsd_amd64
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
+    working_directory: /src
     steps:
-    - setup_remote_docker
+    - add_ssh_keys:
+        fingerprints:
+        - c6:96:98:82:dc:04:6c:39:dd:ac:83:05:e3:15:1c:98
     - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
     - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
+        key: go-sum-v1-{{ checksum "go.sum" }}
     - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
+        command: go mod download
+        name: Download Go modules
     - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
+        command: go mod verify
+        name: Verify checksums of Go modules
     - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-a6623f1bc320f43797857d932b553c2060fbfe0c"}}
+        key: go-sum-v1-{{ checksum "go.sum" }}
         paths:
-        - dist/public/vault_0.0.0-snapshot
-  package_linux_arm:
+        - /go/pkg/mod
+  build-go-dev:
     docker:
-    - image: circleci/buildpack-deps
+    - image: golang:1.12.12-buster
     shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_linux_arm
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: arm
-    - GOOS: linux
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_linux_arm
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
+    working_directory: /src
     steps:
-    - setup_remote_docker
     - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
     - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
+        key: go-sum-v1-{{ checksum "go.sum" }}
+    - attach_workspace:
+        at: .
     - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-f38d37ee6eb98b99f4532332747b8cc2f3ccf133"}}
+        command: |
+          # Move dev UI assets to expected location
+          rm -rf ./pkg
+          mkdir ./pkg
+
+          # Build dev binary
+          make bootstrap dev
+        name: Build dev binary
+    - persist_to_workspace:
         paths:
-        - dist/public/vault_0.0.0-snapshot
-  package_solaris_amd64:
-    docker:
-    - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_solaris_amd64
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: amd64
-    - GOOS: solaris
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_solaris_amd64
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-df94b3d0dfc19550e950ce311ecca64d26e13a9d"}}
-        paths:
-        - dist/public/vault_0.0.0-snapshot
+        - bin
+        root: .
   test-ui:
     docker:
     - image: node:10-buster
@@ -443,153 +154,6 @@ jobs:
           export PATH="${PWD}"/bin:${PATH}
           make test-ui-browserstack
         name: Run Browserstack Tests
-  package_freebsd_arm:
-    docker:
-    - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_freebsd_arm
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: arm
-    - GOOS: freebsd
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_freebsd_arm
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-5899561c25e064b07ecd8203c8d481e7d234bd2c"}}
-        paths:
-        - dist/public/vault_0.0.0-snapshot
-  build-go-dev:
-    docker:
-    - image: golang:1.12.12-buster
-    shell: /usr/bin/env bash -euo pipefail -c
-    working_directory: /src
-    steps:
-    - checkout
-    - restore_cache:
-        key: go-sum-v1-{{ checksum "go.sum" }}
-    - attach_workspace:
-        at: .
-    - run:
-        command: |
-          # Move dev UI assets to expected location
-          rm -rf ./pkg
-          mkdir ./pkg
-
-          # Build dev binary
-          make bootstrap dev
-        name: Build dev binary
-    - persist_to_workspace:
-        paths:
-        - bin
-        root: .
-  test-go-race:
-    machine: true
-    shell: /usr/bin/env bash -euo pipefail -c
-    working_directory: ~/src
-    steps:
-    - checkout
-    - run:
-        command: |
-          sudo mkdir /go
-          sudo chown -R circleci:circleci /go
-        name: Allow circleci user to restore Go modules cache
-    - restore_cache:
-        key: go-sum-v1-{{ checksum "go.sum" }}
-    - run:
-        command: |
-          set -x
-
-          # Install Go
-          curl -sSLO "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz"
-          sudo rm -rf /usr/local/go
-          sudo tar -C /usr/local -xzf "go${GO_VERSION}.linux-amd64.tar.gz"
-          rm -f "go${GO_VERSION}.linux-amd64.tar.gz"
-          export GOPATH=/go
-          export PATH="${PATH}:${GOPATH}/bin:/usr/local/go/bin"
-
-          # Install CircleCI CLI
-          curl -sSL \
-              "https://github.com/CircleCI-Public/circleci-cli/releases/download/v${CIRCLECI_CLI_VERSION}/circleci-cli_${CIRCLECI_CLI_VERSION}_linux_amd64.tar.gz" \
-            | sudo tar --overwrite -xz \
-              -C /usr/local/bin \
-              "circleci-cli_${CIRCLECI_CLI_VERSION}_linux_amd64/circleci"
-
-          # Split Go tests by prior test times
-          package_names=$(go list \
-              -tags "${GO_TAGS}" \
-              ./... \
-            | grep -v /integ \
-            | grep -v /vendor/ \
-            | sort \
-            | circleci tests split --split-by=timings --timings-type=classname)
-
-          # Install gotestsum
-          curl -sSL "https://github.com/gotestyourself/gotestsum/releases/download/v${GOTESTSUM_VERSION}/gotestsum_${GOTESTSUM_VERSION}_linux_amd64.tar.gz" \
-            | sudo tar --overwrite -xz -C /usr/local/bin gotestsum
-
-          # Run tests
-          make prep
-          mkdir -p test-results/go-test
-          CGO_ENABLED= \
-            VAULT_ADDR= \
-            VAULT_TOKEN= \
-            VAULT_DEV_ROOT_TOKEN_ID= \
-            VAULT_ACC= \
-            gotestsum --format=short-verbose --junitfile test-results/go-test/results.xml -- \
-              -tags "${GO_TAGS}" \
-              -timeout=60m \
-              -parallel=20 \
-              -race \
-              ${package_names}
-        name: Run Go tests
-        no_output_timeout: 20m
-    - store_artifacts:
-        path: test-results
-    - store_test_results:
-        path: test-results
-    environment:
-    - CIRCLECI_CLI_VERSION: 0.1.5546
-    - GO_TAGS: null
-    - GO_VERSION: 1.12.12
-    - GOTESTSUM_VERSION: 0.3.3
   test-go:
     machine: true
     shell: /usr/bin/env bash -euo pipefail -c
@@ -661,638 +225,77 @@ jobs:
     - GO_TAGS: null
     - GO_VERSION: 1.12.12
     - GOTESTSUM_VERSION: 0.3.3
-  package_linux_amd64:
-    docker:
-    - image: circleci/buildpack-deps
+  test-go-race:
+    machine: true
     shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_linux_amd64
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: amd64
-    - GOOS: linux
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_linux_amd64
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-df7ef0ed64df45593e4a8ba92e9fef33b0b4b778"}}
-        paths:
-        - dist/public/vault_0.0.0-snapshot
-  package_windows_amd64:
-    docker:
-    - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_windows_amd64
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: amd64
-    - GOOS: windows
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_windows_amd64
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-63b0548b6ab8cea9f140a55aa8552e286989d22c"}}
-        paths:
-        - dist/public/vault_0.0.0-snapshot
-  package_linux_386:
-    docker:
-    - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_linux_386
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: '386'
-    - GOOS: linux
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_linux_386
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-91d5bff5b946d53a8f5bb666e09a20a3e619d2ab"}}
-        paths:
-        - dist/public/vault_0.0.0-snapshot
-  package_freebsd_amd64:
-    docker:
-    - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_freebsd_amd64
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: amd64
-    - GOOS: freebsd
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_freebsd_amd64
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-0576b8f5ae7675d1cc5f62e1a45931ededc4f878"}}
-        paths:
-        - dist/public/vault_0.0.0-snapshot
-  package_openbsd_386:
-    docker:
-    - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_openbsd_386
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: '386'
-    - GOOS: openbsd
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_openbsd_386
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-fbd6af5ba2be20f99e97a355605fa97051fa16f3"}}
-        paths:
-        - dist/public/vault_0.0.0-snapshot
-  package_openbsd_amd64:
-    docker:
-    - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_openbsd_amd64
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: amd64
-    - GOOS: openbsd
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_openbsd_amd64
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-4c43df099bd5222d20541e981f505ef0236a2552"}}
-        paths:
-        - dist/public/vault_0.0.0-snapshot
-  package_netbsd_386:
-    docker:
-    - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_netbsd_386
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: '386'
-    - GOOS: netbsd
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_netbsd_386
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-18540eb5e3fb4966b7be65ff9d66a255df72739e"}}
-        paths:
-        - dist/public/vault_0.0.0-snapshot
-  package_darwin_amd64:
-    docker:
-    - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_darwin_amd64
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: amd64
-    - GOOS: darwin
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_darwin_amd64
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-754b4e6d0951cfb18ce402d95d9863a7051bb79d"}}
-        paths:
-        - dist/public/vault_0.0.0-snapshot
-  package_freebsd_386:
-    docker:
-    - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
-    environment:
-    - BINARY_NAME: vault
-    - BUILDER_LAYER_ID: static_24b2c191871f61aa3b8d496820c689ff4c60e495
-    - BUILD_JOB_NAME: package_freebsd_386
-    - BUILD_TAGS: vault
-    - BUNDLE_NAME: vault_0.0.0-snapshot
-    - CGOENABLED: '0'
-    - GO111MODULE: 'off'
-    - GOARCH: '386'
-    - GOOS: freebsd
-    - GO_VERSION: 1.12.13
-    - PACKAGE_NAME: vault_0.0.0-snapshot_freebsd_386
-    - PACKAGE_OUT_ROOT: dist/public/vault_0.0.0-snapshot
-    - PRODUCT_EDITION: ''
-    - PRODUCT_NAME: vault
-    - PRODUCT_VERSION: 0.0.0-snapshot
-    - PRODUCT_VERSION_MMP: 0.0.0
-    - PRODUCT_VERSION_PRE: snapshot
-    - PUBLIC: 'YES'
-    - YARN_VERSION: 1.19.1-1
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -C release load-builder-cache || echo "No builder cache found."
-        name: Load builder layers from cache
-    - run:
-        command: make -C release package
-    - run:
-        command: ls -lahR dist/
-    - store_artifacts:
-        destination: dist/public/vault_0.0.0-snapshot
-        path: dist/public/vault_0.0.0-snapshot
-    - save_cache:
-        key: package-{{checksum ".buildcache/cache-keys/package-0b8ee19233c84dee317a55fae82daef17e2fe005"}}
-        paths:
-        - dist/public/vault_0.0.0-snapshot
-  pre-flight-checks:
-    docker:
-    - image: circleci/buildpack-deps
-    environment:
-    - CCI_VERSION: 0.1.5691
-    shell: /usr/bin/env bash -euo pipefail
+    working_directory: ~/src
     steps:
     - checkout
     - run:
         command: |
-          export CCI_PATH=/tmp/circleci-cli/$CCI_VERSION
-          mkdir -p $CCI_PATH
-          NAME=circleci-cli_${CCI_VERSION}_${ARCH}
-          URL=$BASE/v${CCI_VERSION}/${NAME}.tar.gz
-          curl -sSL $URL \
-            | tar --overwrite --strip-components=1 -xz -C $CCI_PATH "${NAME}/circleci"
-          # Add circleci to the path for subsequent steps.
-          echo "export PATH=$CCI_PATH:\$PATH" >> $BASH_ENV
-          # Done, print some debug info.
+          sudo mkdir /go
+          sudo chown -R circleci:circleci /go
+        name: Allow circleci user to restore Go modules cache
+    - restore_cache:
+        key: go-sum-v1-{{ checksum "go.sum" }}
+    - run:
+        command: |
           set -x
-          . $BASH_ENV
-          which circleci
-          circleci version
-        environment:
-          ARCH: linux_amd64
-          BASE: https://github.com/CircleCI-Public/circleci-cli/releases/download
-        name: Install CircleCI CLI
-    - run:
-        command: make ci-verify
-  go-mod-download:
-    docker:
-    - image: golang:1.12.12-buster
-    shell: /usr/bin/env bash -euo pipefail -c
-    working_directory: /src
-    steps:
-    - add_ssh_keys:
-        fingerprints:
-        - c6:96:98:82:dc:04:6c:39:dd:ac:83:05:e3:15:1c:98
-    - checkout
-    - restore_cache:
-        key: go-sum-v1-{{ checksum "go.sum" }}
-    - run:
-        command: go mod download
-        name: Download Go modules
-    - run:
-        command: go mod verify
-        name: Verify checksums of Go modules
-    - save_cache:
-        key: go-sum-v1-{{ checksum "go.sum" }}
-        paths:
-        - /go/pkg/mod
-  cache-builder-images:
-    docker:
-    - image: circleci/buildpack-deps
-    shell: /usr/bin/env bash -euo pipefail -c
-    steps:
-    - setup_remote_docker
-    - checkout
-    - run:
-        command: make -C release write-builder-cache-keys
-        name: Write builder layer cache keys
-    - run:
-        command: make -C release write-package-cache-keys
-        name: Write package cache keys
-    - restore_cache:
-        keys:
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}
-        - buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}
-    - run:
-        command: make -f release/build.mk static_24b2c191871f61aa3b8d496820c689ff4c60e495-restore
-    - run:
-        command: make -f release/build.mk static_24b2c191871f61aa3b8d496820c689ff4c60e495-image
-    - run:
-        command: make -f release/build.mk static_24b2c191871f61aa3b8d496820c689ff4c60e495-save
-    - save_cache:
-        key: buildcache-v0-base-{{checksum ".buildcache/cache-keys/base-02376a8228ddcfc3d014c896ea4897e75582221a"}}-yarn-{{checksum ".buildcache/cache-keys/yarn-4b8331e0d10d5546bf2b0a2b368376e7b9d7548f"}}-ui-{{checksum ".buildcache/cache-keys/ui-91f1adae63f46e6e66c3c656ac7d3575e9a107cc"}}-static-{{checksum ".buildcache/cache-keys/static-24b2c191871f61aa3b8d496820c689ff4c60e495"}}
-        paths:
-        - .buildcache/docker-builder-cache.tar.gz
+
+          # Install Go
+          curl -sSLO "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz"
+          sudo rm -rf /usr/local/go
+          sudo tar -C /usr/local -xzf "go${GO_VERSION}.linux-amd64.tar.gz"
+          rm -f "go${GO_VERSION}.linux-amd64.tar.gz"
+          export GOPATH=/go
+          export PATH="${PATH}:${GOPATH}/bin:/usr/local/go/bin"
+
+          # Install CircleCI CLI
+          curl -sSL \
+              "https://github.com/CircleCI-Public/circleci-cli/releases/download/v${CIRCLECI_CLI_VERSION}/circleci-cli_${CIRCLECI_CLI_VERSION}_linux_amd64.tar.gz" \
+            | sudo tar --overwrite -xz \
+              -C /usr/local/bin \
+              "circleci-cli_${CIRCLECI_CLI_VERSION}_linux_amd64/circleci"
+
+          # Split Go tests by prior test times
+          package_names=$(go list \
+              -tags "${GO_TAGS}" \
+              ./... \
+            | grep -v /integ \
+            | grep -v /vendor/ \
+            | sort \
+            | circleci tests split --split-by=timings --timings-type=classname)
+
+          # Install gotestsum
+          curl -sSL "https://github.com/gotestyourself/gotestsum/releases/download/v${GOTESTSUM_VERSION}/gotestsum_${GOTESTSUM_VERSION}_linux_amd64.tar.gz" \
+            | sudo tar --overwrite -xz -C /usr/local/bin gotestsum
+
+          # Run tests
+          make prep
+          mkdir -p test-results/go-test
+          CGO_ENABLED= \
+            VAULT_ADDR= \
+            VAULT_TOKEN= \
+            VAULT_DEV_ROOT_TOKEN_ID= \
+            VAULT_ACC= \
+            gotestsum --format=short-verbose --junitfile test-results/go-test/results.xml -- \
+              -tags "${GO_TAGS}" \
+              -timeout=60m \
+              -parallel=20 \
+              -race \
+              ${package_names}
+        name: Run Go tests
+        no_output_timeout: 20m
+    - store_artifacts:
+        path: test-results
+    - store_test_results:
+        path: test-results
+    environment:
+    - CIRCLECI_CLI_VERSION: 0.1.5546
+    - GO_TAGS: null
+    - GO_VERSION: 1.12.12
+    - GOTESTSUM_VERSION: 0.3.3
 workflows:
-  build-release:
-    jobs:
-    - cache-builder-images:
-        filters:
-          branches:
-            only:
-            - /build-.*/
-            - /ci.*/
-    - package_darwin_386:
-        requires:
-        - cache-builder-images
-    - package_darwin_amd64:
-        requires:
-        - cache-builder-images
-    - package_freebsd_386:
-        requires:
-        - cache-builder-images
-    - package_freebsd_amd64:
-        requires:
-        - cache-builder-images
-    - package_freebsd_arm:
-        requires:
-        - cache-builder-images
-    - package_linux_386:
-        requires:
-        - cache-builder-images
-    - package_linux_amd64:
-        requires:
-        - cache-builder-images
-    - package_linux_arm:
-        requires:
-        - cache-builder-images
-    - package_linux_arm64:
-        requires:
-        - cache-builder-images
-    - package_netbsd_386:
-        requires:
-        - cache-builder-images
-    - package_netbsd_amd64:
-        requires:
-        - cache-builder-images
-    - package_openbsd_386:
-        requires:
-        - cache-builder-images
-    - package_openbsd_amd64:
-        requires:
-        - cache-builder-images
-    - package_solaris_amd64:
-        requires:
-        - cache-builder-images
-    - package_windows_386:
-        requires:
-        - cache-builder-images
-    - package_windows_amd64:
-        requires:
-        - cache-builder-images
-    - bundle-releases:
-        requires:
-        - package_darwin_386
-        - package_darwin_amd64
-        - package_freebsd_386
-        - package_freebsd_amd64
-        - package_freebsd_arm
-        - package_linux_386
-        - package_linux_amd64
-        - package_linux_arm
-        - package_linux_arm64
-        - package_netbsd_386
-        - package_netbsd_amd64
-        - package_openbsd_386
-        - package_openbsd_amd64
-        - package_solaris_amd64
-        - package_windows_386
-        - package_windows_amd64
   ci:
     jobs:
     - pre-flight-checks
@@ -1323,3 +326,463 @@ workflows:
         requires:
         - build-go-dev
   version: 2
+
+# Original config.yml file:
+# build-release:
+#   jobs:
+#   - cache-builder-images:
+#       filters:
+#         branches:
+#           only:
+#           - /build-.*/
+#           - /ci.*/
+#   - package_darwin_386:
+#       requires:
+#       - cache-builder-images
+#   - package_darwin_amd64:
+#       requires:
+#       - cache-builder-images
+#   - package_freebsd_386:
+#       requires:
+#       - cache-builder-images
+#   - package_freebsd_amd64:
+#       requires:
+#       - cache-builder-images
+#   - package_freebsd_arm:
+#       requires:
+#       - cache-builder-images
+#   - package_linux_386:
+#       requires:
+#       - cache-builder-images
+#   - package_linux_amd64:
+#       requires:
+#       - cache-builder-images
+#   - package_linux_arm:
+#       requires:
+#       - cache-builder-images
+#   - package_linux_arm64:
+#       requires:
+#       - cache-builder-images
+#   - package_netbsd_386:
+#       requires:
+#       - cache-builder-images
+#   - package_netbsd_amd64:
+#       requires:
+#       - cache-builder-images
+#   - package_openbsd_386:
+#       requires:
+#       - cache-builder-images
+#   - package_openbsd_amd64:
+#       requires:
+#       - cache-builder-images
+#   - package_solaris_amd64:
+#       requires:
+#       - cache-builder-images
+#   - package_windows_386:
+#       requires:
+#       - cache-builder-images
+#   - package_windows_amd64:
+#       requires:
+#       - cache-builder-images
+#   - bundle-releases:
+#       requires:
+#       - package_darwin_386
+#       - package_darwin_amd64
+#       - package_freebsd_386
+#       - package_freebsd_amd64
+#       - package_freebsd_arm
+#       - package_linux_386
+#       - package_linux_amd64
+#       - package_linux_arm
+#       - package_linux_arm64
+#       - package_netbsd_386
+#       - package_netbsd_amd64
+#       - package_openbsd_386
+#       - package_openbsd_amd64
+#       - package_solaris_amd64
+#       - package_windows_386
+#       - package_windows_amd64
+# commands:
+#   go_test:
+#     description: run go tests
+#     parameters:
+#       extra_flags:
+#         default: \"\"
+#         type: string
+#     steps:
+#     - run:
+#         command: |
+#           set -x
+# 
+#           # Install Go
+#           curl -sSLO \"https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz\"
+#           sudo rm -rf /usr/local/go
+#           sudo tar -C /usr/local -xzf \"go${GO_VERSION}.linux-amd64.tar.gz\"
+#           rm -f \"go${GO_VERSION}.linux-amd64.tar.gz\"
+#           export GOPATH=/go
+#           export PATH=\"${PATH}:${GOPATH}/bin:/usr/local/go/bin\"
+# 
+#           # Install CircleCI CLI
+#           curl -sSL \\
+#               \"https://github.com/CircleCI-Public/circleci-cli/releases/download/v${CIRCLECI_CLI_VERSION}/circleci-cli_${CIRCLECI_CLI_VERSION}_linux_amd64.tar.gz\" \\
+#             | sudo tar --overwrite -xz \\
+#               -C /usr/local/bin \\
+#               \"circleci-cli_${CIRCLECI_CLI_VERSION}_linux_amd64/circleci\"
+# 
+#           # Split Go tests by prior test times
+#           package_names=$(go list \\
+#               -tags \"${GO_TAGS}\" \\
+#               ./... \\
+#             | grep -v /integ \\
+#             | grep -v /vendor/ \\
+#             | sort \\
+#             | circleci tests split --split-by=timings --timings-type=classname)
+# 
+#           # Install gotestsum
+#           curl -sSL \"https://github.com/gotestyourself/gotestsum/releases/download/v${GOTESTSUM_VERSION}/gotestsum_${GOTESTSUM_VERSION}_linux_amd64.tar.gz\" \\
+#             | sudo tar --overwrite -xz -C /usr/local/bin gotestsum
+# 
+#           # Run tests
+#           make prep
+#           mkdir -p test-results/go-test
+#           CGO_ENABLED= \\
+#             VAULT_ADDR= \\
+#             VAULT_TOKEN= \\
+#             VAULT_DEV_ROOT_TOKEN_ID= \\
+#             VAULT_ACC= \\
+#             gotestsum --format=short-verbose --junitfile test-results/go-test/results.xml -- \\
+#               -tags \"${GO_TAGS}\" \\
+#               -timeout=60m \\
+#               -parallel=20 \\
+#               << parameters.extra_flags >> \\
+#               ${package_names}
+#         name: Run Go tests
+#         no_output_timeout: 20m
+#   info-print-buildcache:
+#     steps:
+#     - run:
+#         command: |
+#           ls -lahR .buildcache
+#           docker image ls --no-trunc
+#         name: Info - list files in .buildcache/
+#   load-builder-cache:
+#     steps:
+#     - run:
+#         command: make -C release load-builder-cache || echo \"No builder cache found.\"
+#         name: Load builder layers from cache
+#   load-package_darwin_386:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-647c5f61299d6ded5eecba75ce0afaacfc90d32f\"}}
+#   load-package_darwin_amd64:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-754b4e6d0951cfb18ce402d95d9863a7051bb79d\"}}
+#   load-package_freebsd_386:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-0b8ee19233c84dee317a55fae82daef17e2fe005\"}}
+#   load-package_freebsd_amd64:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-0576b8f5ae7675d1cc5f62e1a45931ededc4f878\"}}
+#   load-package_freebsd_arm:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-5899561c25e064b07ecd8203c8d481e7d234bd2c\"}}
+#   load-package_linux_386:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-91d5bff5b946d53a8f5bb666e09a20a3e619d2ab\"}}
+#   load-package_linux_amd64:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-df7ef0ed64df45593e4a8ba92e9fef33b0b4b778\"}}
+#   load-package_linux_arm:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-f38d37ee6eb98b99f4532332747b8cc2f3ccf133\"}}
+#   load-package_linux_arm64:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-94c7b2112fc8d8d5ec2cf152d542e29c02ba1ab9\"}}
+#   load-package_netbsd_386:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-18540eb5e3fb4966b7be65ff9d66a255df72739e\"}}
+#   load-package_netbsd_amd64:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-a6623f1bc320f43797857d932b553c2060fbfe0c\"}}
+#   load-package_openbsd_386:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-fbd6af5ba2be20f99e97a355605fa97051fa16f3\"}}
+#   load-package_openbsd_amd64:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-4c43df099bd5222d20541e981f505ef0236a2552\"}}
+#   load-package_solaris_amd64:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-df94b3d0dfc19550e950ce311ecca64d26e13a9d\"}}
+#   load-package_windows_386:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-5f1de37f7f9b573eb3485c242383a62d59e4836d\"}}
+#   load-package_windows_amd64:
+#     steps:
+#     - restore_cache:
+#         key: package-{{checksum \".buildcache/cache-keys/package-63b0548b6ab8cea9f140a55aa8552e286989d22c\"}}
+#   restore_go_cache:
+#     steps:
+#     - restore_cache:
+#         key: go-sum-v1-{{ checksum \"go.sum\" }}
+#   restore_yarn_cache:
+#     steps:
+#     - restore_cache:
+#         key: yarn-lock-v1-{{ checksum \"ui/yarn.lock\" }}
+#   save-builder-cache:
+#     steps:
+#     - run:
+#         command: make -C release save-builder-cache
+#         name: Update and save builder layers to cache
+#   save_go_cache:
+#     steps:
+#     - save_cache:
+#         key: go-sum-v1-{{ checksum \"go.sum\" }}
+#         paths:
+#         - /go/pkg/mod
+#   save_yarn_cache:
+#     steps:
+#     - save_cache:
+#         key: yarn-lock-v1-{{ checksum \"ui/yarn.lock\" }}
+#         paths:
+#         - ui/node_modules
+#   write-cache-keys:
+#     steps:
+#     - run:
+#         command: make -C release write-builder-cache-keys
+#         name: Write builder layer cache keys
+#     - run:
+#         command: make -C release write-package-cache-keys
+#         name: Write package cache keys
+# executors:
+#   go:
+#     docker:
+#     - image: golang:1.12.12-buster
+#     shell: /usr/bin/env bash -euo pipefail -c
+#     working_directory: /src
+#   go-machine:
+#     environment:
+#       CIRCLECI_CLI_VERSION: 0.1.5546
+#       GO_TAGS: null
+#       GO_VERSION: 1.12.12
+#       GOTESTSUM_VERSION: 0.3.3
+#     machine: true
+#     shell: /usr/bin/env bash -euo pipefail -c
+#     working_directory: ~/src
+#   node:
+#     docker:
+#     - image: node:10-buster
+#     shell: /usr/bin/env bash -euo pipefail -c
+#     working_directory: /src
+#   releaser:
+#     docker:
+#     - image: circleci/buildpack-deps
+#     shell: /usr/bin/env bash -euo pipefail -c
+# jobs:
+#   build-go-dev:
+#     executor: go
+#     steps:
+#     - checkout
+#     - restore_go_cache
+#     - attach_workspace:
+#         at: .
+#     - run:
+#         command: |
+#           # Move dev UI assets to expected location
+#           rm -rf ./pkg
+#           mkdir ./pkg
+# 
+#           # Build dev binary
+#           make bootstrap dev
+#         name: Build dev binary
+#     - persist_to_workspace:
+#         paths:
+#         - bin
+#         root: .
+#   go-mod-download:
+#     executor: go
+#     steps:
+#     - add_ssh_keys:
+#         fingerprints:
+#         - c6:96:98:82:dc:04:6c:39:dd:ac:83:05:e3:15:1c:98
+#     - checkout
+#     - restore_go_cache
+#     - run:
+#         command: go mod download
+#         name: Download Go modules
+#     - run:
+#         command: go mod verify
+#         name: Verify checksums of Go modules
+#     - save_go_cache
+#   install-ui-dependencies:
+#     executor: node
+#     steps:
+#     - checkout
+#     - restore_yarn_cache
+#     - run:
+#         command: |
+#           cd ui
+#           yarn install
+#           npm rebuild node-sass
+#         name: Install UI dependencies
+#     - save_yarn_cache
+#   pre-flight-checks:
+#     description: Ensures nothing obvious is broken for faster failures.
+#     docker:
+#     - image: circleci/buildpack-deps
+#     environment:
+#       CCI_VERSION: 0.1.5691
+#     shell: /usr/bin/env bash -euo pipefail
+#     steps:
+#     - checkout
+#     - run:
+#         command: |
+#           export CCI_PATH=/tmp/circleci-cli/$CCI_VERSION
+#           mkdir -p $CCI_PATH
+#           NAME=circleci-cli_${CCI_VERSION}_${ARCH}
+#           URL=$BASE/v${CCI_VERSION}/${NAME}.tar.gz
+#           curl -sSL $URL \\
+#             | tar --overwrite --strip-components=1 -xz -C $CCI_PATH \"${NAME}/circleci\"
+#           # Add circleci to the path for subsequent steps.
+#           echo \"export PATH=$CCI_PATH:\\$PATH\" >> $BASH_ENV
+#           # Done, print some debug info.
+#           set -x
+#           . $BASH_ENV
+#           which circleci
+#           circleci version
+#         environment:
+#           ARCH: linux_amd64
+#           BASE: https://github.com/CircleCI-Public/circleci-cli/releases/download
+#         name: Install CircleCI CLI
+#     - run: make ci-verify
+#   test-go:
+#     executor: go-machine
+#     parallelism: 2
+#     steps:
+#     - checkout
+#     - run:
+#         command: |
+#           sudo mkdir /go
+#           sudo chown -R circleci:circleci /go
+#         name: Allow circleci user to restore Go modules cache
+#     - restore_go_cache
+#     - go_test
+#     - store_artifacts:
+#         path: test-results
+#     - store_test_results:
+#         path: test-results
+#   test-go-race:
+#     executor: go-machine
+#     steps:
+#     - checkout
+#     - run:
+#         command: |
+#           sudo mkdir /go
+#           sudo chown -R circleci:circleci /go
+#         name: Allow circleci user to restore Go modules cache
+#     - restore_go_cache
+#     - go_test:
+#         extra_flags: -race
+#     - store_artifacts:
+#         path: test-results
+#     - store_test_results:
+#         path: test-results
+#   test-ui:
+#     executor: node
+#     resource_class: medium+
+#     steps:
+#     - checkout
+#     - restore_yarn_cache
+#     - attach_workspace:
+#         at: .
+#     - run:
+#         command: |
+#           set -x
+# 
+#           # Install Chrome
+#           wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub \\
+#             | apt-key add -
+#           echo \"deb http://dl.google.com/linux/chrome/deb/ stable main\" \\
+#             | tee /etc/apt/sources.list.d/google-chrome.list
+#           apt-get update
+#           apt-get -y install google-chrome-stable
+#           rm /etc/apt/sources.list.d/google-chrome.list
+#           rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+# 
+#           # Add ./bin to the PATH so vault binary can be run by Ember tests
+#           export PATH=\"${PWD}/bin:${PATH}\"
+# 
+#           # Run Ember tests
+#           cd ui
+#           mkdir -p test-results/qunit
+#           yarn test:oss
+#         name: Test UI
+#     - store_artifacts:
+#         path: ui/test-results
+#     - store_test_results:
+#         path: ui/test-results
+#   test-ui-browserstack:
+#     executor: node
+#     resource_class: medium+
+#     steps:
+#     - checkout
+#     - restore_yarn_cache
+#     - attach_workspace:
+#         at: .
+#     - run:
+#         command: |
+#           # Add ./bin to the PATH so vault binary can be found.
+#           export PATH=\"${PWD}\"/bin:${PATH}
+#           make test-ui-browserstack
+#         name: Run Browserstack Tests
+# references:
+#   cache:
+#     go-sum: go-sum-v1-{{ checksum \"go.sum\" }}
+#     yarn-lock: yarn-lock-v1-{{ checksum \"ui/yarn.lock\" }}
+#   images:
+#     go: golang:1.12.12-buster
+#     node: node:10-buster
+# version: 2.1
+# workflows:
+#   ci:
+#     jobs:
+#     - pre-flight-checks
+#     - install-ui-dependencies:
+#         requires:
+#         - pre-flight-checks
+#     - go-mod-download:
+#         requires:
+#         - pre-flight-checks
+#     - build-go-dev:
+#         requires:
+#         - go-mod-download
+#     - test-ui:
+#         requires:
+#         - install-ui-dependencies
+#         - build-go-dev
+#     - test-ui-browserstack:
+#         filters:
+#           branches:
+#             ignore: /pull\\/[0-9]+/
+#         requires:
+#         - install-ui-dependencies
+#         - build-go-dev
+#     - test-go:
+#         requires:
+#         - build-go-dev
+#     - test-go-race:
+#         requires:
+#         - build-go-dev

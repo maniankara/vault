@@ -63,7 +63,7 @@
 # from different directories safely.
 include $(dir $(lastword $(MAKEFILE_LIST)))config.mk
 
-DOCKERFILES_DIR := $(RELEASE_DIR)/$(LOCKDIR)/layers
+DOCKERFILES_DIR := $(LOCKDIR)/layers
 
 ### END BUILDER IMAGE LAYERS
 
