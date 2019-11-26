@@ -76,7 +76,7 @@ DOCKERFILES_DIR := $(LOCKDIR)/layers
 #   <name>-debug     : dump debug info for this image layer
 #   <name>-image     : build the image for this image layer
 #   <name>-save      : save the docker image for this layer as a tar.gz
-#   <name>-restore   : restore this image from a saved tar.gz
+#   <name>-load      : load this image from the saved tar.gz
 
 define LAYER
 LAYERS += $(1)

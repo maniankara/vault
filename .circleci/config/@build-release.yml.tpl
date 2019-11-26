@@ -32,7 +32,7 @@ jobs:
             {{- range .circlecicacheprefixes}}
             - {{$cacheVersion}}-{{.}}
             {{- end}}
-      - run: make -f release/layer.mk {{.name}}-restore
+      - run: make -f release/layer.mk {{.name}}-load
       - run: make -f release/layer.mk {{.name}}-image
       - run: make -f release/layer.mk {{.name}}-save
       - save_cache:
