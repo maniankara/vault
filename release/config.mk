@@ -82,6 +82,7 @@ INSTALL_TOOL := $(2)
 INSTALL_COMMAND := $(3)
 TOOLS := $(4)
 TOOL_INSTALL_LOG := $(CACHE_ROOT)/tool-install-$$(GROUP_NAME).log
+_ := $$(shell mkdir -p $$(dir $$(TOOL_INSTALL_LOG)))
 INSTALL_TOOL_AVAILABLE := $$(shell command -v $$(INSTALL_TOOL) > /dev/null 2>&1 && echo YES)
 ATTEMPT_AUTO_INSTALL := NO
 ifeq ($$(INSTALL_TOOL_AVAILABLE),YES)
